@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #F8FAFC;
+  /* Light Slate Background */
+  --foreground: #0F172A;
+  /* Slate 900 */
+  --primary: #2563EB;
+  /* Blue 600 */
+  --primary-foreground: #FFFFFF;
+  --secondary: #64748B;
+  /* Slate 500 */
+  --secondary-foreground: #FFFFFF;
+  --accent: #EAB308;
+  /* Yellow 500 */
+  --accent-foreground: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0F172A;
+    /* Slate 900 Background */
+    --foreground: #F8FAFC;
+    /* Slate 50 */
+    --primary: #3B82F6;
+    /* Blue 500 */
+    --primary-foreground: #FFFFFF;
+    --secondary: #94A3B8;
+    /* Slate 400 */
+    --secondary-foreground: #0F172A;
+    --accent: #FACC15;
+    /* Yellow 400 */
+    --accent-foreground: #000000;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
