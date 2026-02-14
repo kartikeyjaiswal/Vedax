@@ -1,13 +1,18 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from core.views import EcoTaskViewSet, LessonViewSet, LeaderboardViewSet, RegisterView, UserViewSet
+from accounts.views import UserViewSet, RegisterView
+from institutions.views import InstitutionViewSet
+from learning.views import LessonViewSet
+from eco_tasks.views import EcoTaskViewSet
+from gamification.views import LeaderboardViewSet
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'tasks', EcoTaskViewSet)
 router.register(r'lessons', LessonViewSet)
 router.register(r'leaderboard', LeaderboardViewSet)
+router.register(r'institutions', InstitutionViewSet)
 
 from rest_framework.authtoken import views
 from django.http import JsonResponse

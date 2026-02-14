@@ -5,7 +5,8 @@ import axios from 'axios';
 
 interface User {
     id: number;
-    username: string;
+    full_name: string;
+    email: string;
     xp_points: number;
     badges: string[];
     school_name: string;
@@ -59,9 +60,9 @@ export default function LeaderboardPage() {
                                 <tr key={user.id} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                                index === 1 ? 'bg-gray-100 text-gray-700' :
-                                                    index === 2 ? 'bg-orange-100 text-orange-700' :
-                                                        'text-neutral-500'
+                                            index === 1 ? 'bg-gray-100 text-gray-700' :
+                                                index === 2 ? 'bg-orange-100 text-orange-700' :
+                                                    'text-neutral-500'
                                             }`}>
                                             {index + 1}
                                         </div>
@@ -69,9 +70,9 @@ export default function LeaderboardPage() {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
                                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
-                                                {user.username.charAt(0).toUpperCase()}
+                                                {(user.full_name || user.email).charAt(0).toUpperCase()}
                                             </div>
-                                            <div className="text-sm font-medium">{user.username}</div>
+                                            <div className="text-sm font-medium">{user.full_name || user.email}</div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">

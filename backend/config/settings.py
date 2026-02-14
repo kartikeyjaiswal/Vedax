@@ -42,6 +42,11 @@ INSTALLED_APPS = [
     'corsheaders',
     # Local
     'core',
+    'accounts',
+    'institutions',
+    'learning',
+    'eco_tasks',
+    'gamification',
 ]
 
 REST_FRAMEWORK = {
@@ -87,14 +92,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # Use SQLite for local dev, Postgres for Docker (via env vars later)
+# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'vedax_db',
+        'USER': 'vedax_user',
+        'PASSWORD': 'vedax123',
+        'HOST': 'localhost',
+        'PORT': '5433',
     }
 }
 
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 CORS_ALLOW_ALL_ORIGINS = True # For development
 

@@ -7,11 +7,11 @@ import axios from 'axios';
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({
-        username: '',
+        full_name: '',
         email: '',
         password: '',
         role: 'student',
-        school_name: ''
+        institution_code: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -67,15 +67,15 @@ export default function RegisterPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            Username
+                            Full Name
                         </label>
                         <input
                             type="text"
-                            name="username"
-                            value={formData.username}
+                            name="full_name"
+                            value={formData.full_name}
                             onChange={handleChange}
                             className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                            placeholder="Choose a username"
+                            placeholder="John Doe"
                             required
                         />
                     </div>
@@ -126,15 +126,15 @@ export default function RegisterPage() {
 
                     <div>
                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            School Name
+                            Institution Code (Ask your admin)
                         </label>
                         <input
                             type="text"
-                            name="school_name"
-                            value={formData.school_name}
+                            name="institution_code"
+                            value={formData.institution_code}
                             onChange={handleChange}
                             className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                            placeholder="Enter your school name"
+                            placeholder="Enter code (e.g. UNIV123)"
                         />
                     </div>
 

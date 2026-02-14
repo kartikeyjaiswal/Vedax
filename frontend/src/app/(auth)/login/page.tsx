@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -11,6 +12,7 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,7 +28,6 @@ export default function LoginPage() {
 
             if (response.data.token) {
                 const token = response.data.token;
-                localStorage.setItem('token', token);
 
                 // 2. Fetch User Details for Role
                 try {
@@ -34,20 +35,24 @@ export default function LoginPage() {
                         headers: { Authorization: `Token ${token}` }
                     });
 
-                    const role = userResponse.data.role; // 'student', 'teacher', 'admin'
+                    const user = userResponse.data;
+                    const role = user.role;
+
+                    // Update Context
+                    login(token, user);
 
                     // 3. Redirect based on role
-                    if (role === 'teacher') {
-                        router.push('/teacher');
-                    } else if (role === 'admin') {
+                    if (role === 'super_admin') {
                         router.push('/admin');
+                    } else if (role === 'institution_admin') {
+                        router.push('/institution');
+                    } else if (role === 'teacher') {
+                        router.push('/teacher');
                     } else {
                         router.push('/student');
                     }
                 } catch (userErr) {
                     console.error("Failed to fetch user details", userErr);
-                    // Fallback to student if fetching role fails, or stay on login?
-                    // Let's assume student as safe default or just push to home
                     router.push('/student');
                 }
             }
@@ -79,14 +84,14 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            Username
+                            Email
                         </label>
                         <input
-                            type="text"
+                            type="email"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                            placeholder="Enter your username"
+                            placeholder="your@email.com"
                             required
                         />
                     </div>
