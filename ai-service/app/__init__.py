@@ -1,0 +1,1 @@
+# EcoGamify AI Service Package

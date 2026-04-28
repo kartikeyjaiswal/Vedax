@@ -1,0 +1,21 @@
+ATTRS:
+  name: required=true default="null" size=100 array=false status=available
+  email: required=true default="null" size=255 array=false status=available
+  collegeId: required=false default="null" size=50 array=false status=available
+  points: required=false default="0" size=undefined array=false status=available
+  level: required=false default="1" size=undefined array=false status=available
+  badges: required=false default="null" size=50 array=true status=available
+  streakCount: required=false default="0" size=undefined array=false status=available
+  ecoScore: required=false default="0" size=undefined array=false status=available
+  tasksCompleted: required=false default="0" size=undefined array=false status=available
+  quizzesCompleted: required=false default="0" size=undefined array=false status=available
+  lastActive: required=false default="null" size=50 array=false status=available
+
+AUTH_USERS:
+  jamit5044@gmail.com = 69da5f7d002cace8fc14
+  test@ecogamify.com = 69da619a0021d4c20f28
+  jaikartik5044@gmail.com = 69da81a80033b7a1b393
+
+TEST_ID: 69da81a80033b7a1b393
+DOC_ERROR: Invalid document structure: Unknown attribute: "role" | code=400 | type=document_invalid_structure
+DOC_MINIMAL_CREATED: 69da81a80033b7a1b393
