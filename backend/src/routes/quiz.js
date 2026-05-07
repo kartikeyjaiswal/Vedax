@@ -41,8 +41,8 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// POST /api/quizzes/generate  (AI generated - College Admin Only)
-router.post('/generate', verifySession, checkRole(['college_admin']), async (req, res) => {
+// POST /api/quizzes/generate  (AI generated - College Admin & Student)
+router.post('/generate', verifySession, checkRole(['college_admin', 'student']), async (req, res) => {
   try {
     const { topic, count = 10 } = req.body
     const aiRes = await aiGenerateQuiz(topic, count)
