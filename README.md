@@ -138,3 +138,25 @@ GEMINI_API_KEY=your_gemini_api_key
 | **Student** | All above + college tasks + submissions |
 | **College Admin** | All above + create tasks + approve submissions |
 | **Super Admin** | Everything + manage all colleges + global config |
+
+---
+
+## 🌍 Production Deployment
+
+Vedax is configured for seamless deployment using Docker Compose. The configuration uses an Nginx proxy for the frontend to securely route API traffic to the backend, completely bypassing CORS issues. The AI service remains secure and inaccessible from the outside world.
+
+### Steps to deploy:
+
+1. **Clone the repository** on your server.
+2. **Setup Environment Variables**:
+   Create the required `.env` files based on the examples:
+   - `backend/.env` (Requires `APPWRITE_PROJECT_ID`, `APPWRITE_API_KEY`, etc.)
+   - `ai-service/.env` (Requires `GEMINI_API_KEY`)
+3. **Build and start the containers**:
+   ```bash
+   docker-compose up -d --build
+   ```
+4. **Access the application**:
+   The Nginx frontend will be exposed on port `80`. Simply visit your server's IP address or domain.
+
+**Note**: All API requests from the frontend are routed automatically via Nginx (using `VITE_API_URL=/`), so you don't need to configure CORS or specify the frontend URL for it to communicate with the backend!
