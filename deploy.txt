@@ -1,0 +1,81 @@
+# Vedax Deployment Guide (Vercel & Render)
+
+This guide will walk you through deploying your application in a microservice architecture:
+1. AI Service (Python) on Render
+2. Backend (Node.js) on Render
+3. Frontend (React) on Vercel
+
+---
+
+## Step 1: Deploy the AI Service to Render
+
+The AI service has no dependencies on the other services, so it must be deployed first to get its URL.
+
+1. Go to https://dashboard.render.com/ and click "New" -> "Web Service".
+2. Connect your GitHub repository and select the `Vedax` repo.
+3. Configuration:
+   - Name: `vedax-ai-service`
+   - Root Directory: `ai-service`
+   - Environment: `Python 3`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. Environment Variables (Click "Advanced"):
+   - `GEMINI_API_KEY`: <Your Gemini API Key>
+5. Click **Create Web Service**.
+6. **IMPORTANT**: Wait for the deployment to finish and copy the Render URL (e.g., `https://vedax-ai-service.onrender.com`).
+
+---
+
+## Step 2: Deploy the Backend to Render
+
+Now deploy the backend, which will need the AI Service URL you just copied.
+
+1. Go back to the Render dashboard and create another "Web Service".
+2. Select your `Vedax` repo again.
+3. Configuration:
+   - Name: `vedax-backend`
+   - Root Directory: `backend`
+   - Environment: `Node`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+4. Environment Variables:
+   - `APPWRITE_ENDPOINT`: `https://cloud.appwrite.io/v1`
+   - `APPWRITE_PROJECT_ID`: <Your Appwrite Project ID>
+   - `APPWRITE_API_KEY`: <Your Appwrite Server API Key>
+   - `APPWRITE_DB_ID`: `ecogamify_db`
+   - `APPWRITE_STORAGE_BUCKET`: `submissions_bucket`
+   - `AI_SERVICE_URL`: `<The AI Service URL from Step 1>`
+   - *(Optional)* Add your SMTP variables for email OTPs: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`
+5. Click **Create Web Service**.
+6. **IMPORTANT**: Wait for it to deploy and copy the Backend URL (e.g., `https://vedax-backend.onrender.com`).
+
+---
+
+## Step 3: Deploy the Frontend to Vercel
+
+Finally, deploy the frontend on Vercel so it can communicate with your new backend.
+
+1. Go to https://vercel.com/ and click "Add New..." -> "Project".
+2. Import your `Vedax` GitHub repository.
+3. Configuration:
+   - Framework Preset: `Vite`
+   - Root Directory: `frontend`
+4. Environment Variables:
+   - `VITE_API_URL`: `<The Backend URL from Step 2>` (e.g., `https://vedax-backend.onrender.com`)
+   - `VITE_APPWRITE_ENDPOINT`: `https://cloud.appwrite.io/v1`
+   - `VITE_APPWRITE_PROJECT_ID`: <Your Appwrite Project ID>
+5. Click **Deploy**.
+6. Once deployed, copy your new Vercel domain (e.g., `https://vedax.vercel.app`).
+
+---
+
+## Step 4: Finalize Backend CORS Configuration
+
+For security, your backend is configured to only allow requests from specific domains. 
+
+1. Go back to Render -> `vedax-backend` -> Environment.
+2. Add a new variable:
+   - `FRONTEND_URL`: `<Your new Vercel Domain>` (e.g., `https://vedax.vercel.app`) - Make sure there is NO trailing slash at the end!
+3. Render will automatically redeploy the backend with the new CORS rules.
+
+🎉 You are fully deployed! You can now access your application from your Vercel URL.

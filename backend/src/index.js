@@ -55,6 +55,9 @@ app.use('/api/platform', platformRoutes)
 app.use('/api/tickets', ticketsRoutes)
 app.use('/api/results', resultsRoutes)
 
+// Base route
+app.get('/', (req, res) => res.send('Vedax Backend is running successfully'))
+
 // Health check
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'Vedax Backend' }))
 
