@@ -5,9 +5,9 @@ import { verifySession, checkRole } from '../middleware/auth.js'
 const router = express.Router()
 
 // POST /api/assignments (College Admin Only)
-router.post('/', verifySession, checkRole(['college_admin', 'super_admin']), async (req, res) => {
+router.post('/', verifySession, checkRole(['college_admin']), async (req, res) => {
   try {
-    const { title, description, questions, dueDate, totalMarks } = req.body
+    const { title, description, questions, dueDate, totalMarks, reattemptCost } = req.body
     
     if (!title || !questions) return res.status(400).json({ error: 'title and questions required' })
 
@@ -19,6 +19,7 @@ router.post('/', verifySession, checkRole(['college_admin', 'super_admin']), asy
       collegeId: req.userDoc.collegeId,
       dueDate: dueDate || null,
       totalMarks: parseInt(totalMarks) || 100,
+      reattemptCost: parseInt(reattemptCost) || 50,
     })
 
     res.status(201).json({ assignment })
@@ -45,7 +46,7 @@ router.get('/', verifySession, async (req, res) => {
 })
 
 // GET /api/assignments/:id/submissions (Admin)
-router.get('/:id/submissions', verifySession, checkRole(['college_admin', 'super_admin']), async (req, res) => {
+router.get('/:id/submissions', verifySession, checkRole(['college_admin']), async (req, res) => {
   try {
     const submissions = await db.listDocuments(DB_ID, C.ASSIGNMENT_SUBMISSIONS, [
       Query.equal('assignmentId', req.params.id),
@@ -75,20 +76,31 @@ router.post('/:id/submit', verifySession, checkRole(['student']), async (req, re
   try {
     const { answers } = req.body
 
-    // 24 Hour Check logic
+    const assignment = await db.getDocument(DB_ID, C.ASSIGNMENTS, req.params.id)
+    const cost = assignment.reattemptCost || 50
+
+    // Check existing attempts
     const existing = await db.listDocuments(DB_ID, C.ASSIGNMENT_SUBMISSIONS, [
       Query.equal('studentId', req.userDoc.$id),
       Query.equal('assignmentId', req.params.id),
-      Query.orderDesc('$createdAt'),
-      Query.limit(1)
+      Query.orderDesc('$createdAt')
     ])
 
     if (existing.documents.length > 0) {
+      // Reattempt logic
       const lastAttempt = new Date(existing.documents[0].$createdAt).getTime()
       const hoursSince = (Date.now() - lastAttempt) / (1000 * 60 * 60)
       if (hoursSince < 24) {
         return res.status(400).json({ error: `You can only reattempt this assignment in ${Math.ceil(24 - hoursSince)} hours.` })
       }
+      
+      // Deduct XP
+      if (req.userDoc.points < cost) {
+        return res.status(400).json({ error: `Not enough XP to reattempt. Cost is ${cost} XP.` })
+      }
+      await db.updateDocument(DB_ID, C.USERS, req.userDoc.$id, {
+        points: req.userDoc.points - cost
+      })
     }
 
     const submission = await db.createDocument(DB_ID, C.ASSIGNMENT_SUBMISSIONS, ID.unique(), {
@@ -105,7 +117,7 @@ router.post('/:id/submit', verifySession, checkRole(['student']), async (req, re
 })
 
 // POST /api/assignments/:id/evaluate/:submissionId (Admin Only)
-router.post('/:id/evaluate/:submissionId', verifySession, checkRole(['college_admin', 'super_admin']), async (req, res) => {
+router.post('/:id/evaluate/:submissionId', verifySession, checkRole(['college_admin']), async (req, res) => {
   try {
     const { score } = req.body
 

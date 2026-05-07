@@ -25,5 +25,8 @@ export const C = {
   BADGES: process.env.APPWRITE_BADGES_COLLECTION || 'badges',
   ASSIGNMENTS: process.env.APPWRITE_ASSIGNMENTS_COLLECTION || 'assignments',
   ASSIGNMENT_SUBMISSIONS: process.env.APPWRITE_ASSIGNMENT_SUBMISSIONS_COLLECTION || 'assignment_submissions',
+  PLATFORM_SETTINGS: process.env.APPWRITE_PLATFORM_SETTINGS_COLLECTION || 'platform_settings',
+  TICKETS: process.env.APPWRITE_TICKETS_COLLECTION || 'tickets',
+  LOGS: process.env.APPWRITE_LOGS_COLLECTION || 'logs'
 }
 export const BUCKET_ID = process.env.APPWRITE_STORAGE_BUCKET || 'submissions_bucket'

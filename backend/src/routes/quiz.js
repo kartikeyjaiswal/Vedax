@@ -41,8 +41,8 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// POST /api/quizzes/generate  (AI generated)
-router.post('/generate', verifySession, async (req, res) => {
+// POST /api/quizzes/generate  (AI generated - College Admin Only)
+router.post('/generate', verifySession, checkRole(['college_admin']), async (req, res) => {
   try {
     const { topic, count = 10 } = req.body
     const aiRes = await aiGenerateQuiz(topic, count)
@@ -79,8 +79,8 @@ router.post('/generate', verifySession, async (req, res) => {
   }
 })
 
-// POST /api/quizzes/:id/attempt
-router.post('/:id/attempt', verifySession, async (req, res) => {
+// POST /api/quizzes/:id/attempt (Student Only)
+router.post('/:id/attempt', verifySession, checkRole(['student']), async (req, res) => {
   try {
     const { answers, score } = req.body
     const userId = req.userDoc.$id

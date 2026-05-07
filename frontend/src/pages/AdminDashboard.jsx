@@ -3,9 +3,9 @@ import { motion } from 'framer-motion'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Users, ListTodo, CheckCircle, XCircle, Clock, Plus,
-  BarChart3, Building2, Trophy, ChevronRight, Loader2
+  BarChart3, Building2, Trophy, ChevronRight, Loader2, MessageSquare
 } from 'lucide-react'
-import { tasksAPI, submissionsAPI, collegesAPI } from '../services/api'
+import { tasksAPI, submissionsAPI, collegesAPI, ticketsAPI } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import { formatNumber } from '../lib/utils'
 import { Bar } from 'react-chartjs-2'
@@ -95,6 +95,98 @@ function CreateTaskModal({ collegeId, onClose, onCreated }) {
   )
 }
 
+function SupportTab() {
+  const [showCreate, setShowCreate] = useState(false)
+  const [subject, setSubject] = useState('')
+  const [description, setDescription] = useState('')
+  const [priority, setPriority] = useState('medium')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const qc = useQueryClient()
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['college-tickets'],
+    queryFn: () => ticketsAPI.getAll(),
+  })
+
+  const tickets = data?.data?.tickets || []
+
+  const handleSubmit = async () => {
+    if (!subject || !description) return toast.error('Subject and description required')
+    setIsSubmitting(true)
+    try {
+      await ticketsAPI.create({ subject, description, priority })
+      toast.success('Ticket created successfully')
+      setShowCreate(false)
+      setSubject('')
+      setDescription('')
+      setPriority('medium')
+      qc.invalidateQueries(['college-tickets'])
+    } catch {
+      toast.error('Failed to create ticket')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="section-title m-0">Support Tickets</h3>
+        <button onClick={() => setShowCreate(true)} className="btn-primary text-sm flex items-center gap-2">
+          <Plus className="w-4 h-4" /> New Ticket
+        </button>
+      </div>
+
+      {showCreate && (
+        <div className="glass-card p-5 mb-4 space-y-3">
+          <h4 className="font-bold text-white">Create New Support Ticket</h4>
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="input-field" />
+          <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Describe your issue..." className="input-field min-h-[100px]" />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className="input-field">
+            <option value="low">Low Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
+            <option value="critical">Critical</option>
+          </select>
+          <div className="flex gap-2 pt-2">
+            <button onClick={() => setShowCreate(false)} className="btn-secondary flex-1 text-sm">Cancel</button>
+            <button onClick={handleSubmit} disabled={isSubmitting} className="btn-primary flex-1 text-sm flex justify-center items-center gap-2">
+              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />} Submit
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tickets.length === 0 && !isLoading && (
+        <div className="text-center p-8 text-gray-500 glass-card">No support tickets found.</div>
+      )}
+
+      <div className="space-y-3">
+        {tickets.map(ticket => (
+          <div key={ticket.$id} className="glass-card p-4">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="font-bold text-white">{ticket.subject}</h4>
+              <span className={`px-2 py-0.5 text-xs font-bold rounded uppercase ${
+                ticket.status === 'open' ? 'bg-yellow-500/20 text-yellow-500' :
+                ticket.status === 'approved' ? 'bg-eco-500/20 text-eco-400' :
+                ticket.status === 'denied' ? 'bg-red-500/20 text-red-500' :
+                'bg-gray-500/20 text-gray-400'
+              }`}>{ticket.status}</span>
+            </div>
+            <p className="text-sm text-gray-400 whitespace-pre-wrap">{ticket.description}</p>
+            {ticket.adminReply && (
+              <div className="mt-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                <div className="text-xs text-purple-400 font-bold mb-1">Super Admin Reply:</div>
+                <p className="text-sm text-gray-300 whitespace-pre-wrap">{ticket.adminReply}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
   const { userDoc } = useAuthStore()
   const qc = useQueryClient()
@@ -171,9 +263,9 @@ export default function AdminDashboard() {
 
       {/* Tabs */}
       <div className="flex gap-2">
-        {['overview', 'submissions', 'students'].map(t => (
+        {['overview', 'submissions', 'students', 'support'].map(t => (
           <button key={t} onClick={() => setActiveTab(t)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === t ? 'bg-eco-500/20 text-eco-400 border border-eco-500/30' : 'text-gray-400 bg-slate-800/50 hover:text-white capitalize'}`}>
-            {t === 'overview' ? '📊 Overview' : t === 'submissions' ? '📋 Submissions' : '🎓 Students Roster'}
+            {t === 'overview' ? '📊 Overview' : t === 'submissions' ? '📋 Submissions' : t === 'students' ? '🎓 Students Roster' : '🎫 Support'}
           </button>
         ))}
       </div>
@@ -229,6 +321,8 @@ export default function AdminDashboard() {
           )}
         </div>
       )}
+
+      {activeTab === 'support' && <SupportTab />}
 
       {showCreate && (
         <CreateTaskModal

@@ -5,7 +5,7 @@ import {
   Chart as ChartJS, RadialLinearScale, PointElement,
   LineElement, Filler, Tooltip, Legend
 } from 'chart.js'
-import { Edit, Share2, Award, Target, Brain, Flame, Star, Shield } from 'lucide-react'
+import { Edit, Share2, Award, Target, Brain, Flame, Star, Shield, Trash2 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { authAPI, usersAPI } from '../services/api'
 import { getLevelInfo, formatNumber, getBadgeColor } from '../lib/utils'
@@ -60,13 +60,12 @@ function VerifyEmailModal({ userDoc, onClose, onVerified }) {
     if (otp.length !== 6) return toast.error('Enter 6-digit code')
     setLoading(true)
     try {
-      const res = await authAPI.verifyOtp({ email: userDoc.email, otp, userId: userDoc.$id })
-      toast.success('Email verified successfully!')
+      const res = await usersAPI.verify(userDoc.$id, otp)
+      toast.success('Profile verified successfully! +200 XP 🎉')
       
-      // Inject isEmailVerified regardless of DB schema support
-      onVerified({ ...res.data.user, isEmailVerified: true })
+      onVerified({ ...res.data.user })
       onClose()
-    } catch {
+    } catch (err) {
       toast.error('Invalid or expired code')
     } finally {
       setLoading(false)
@@ -199,9 +198,56 @@ function ProfileHeader({ userDoc, onEditClick }) {
 
       <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5">
         {/* Avatar */}
-        <div className="relative">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-eco-500 to-ocean-600 flex items-center justify-center text-4xl font-bold text-white shadow-glow-eco">
-            {userDoc?.name?.charAt(0)?.toUpperCase()}
+        <div className="relative group cursor-pointer">
+          <input 
+            type="file" 
+            id="profileUpload" 
+            className="hidden" 
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files[0]
+              if (!file) return
+              const toastId = toast.loading('Uploading profile picture...')
+              try {
+                const formData = new FormData()
+                formData.append('image', file)
+                const res = await usersAPI.uploadProfile(userDoc.$id, formData)
+                onEditClick(res.data.user) // trigger update
+                toast.success('Profile picture updated!', { id: toastId })
+              } catch (err) {
+                toast.error('Upload failed', { id: toastId })
+              }
+            }}
+          />
+          {userDoc?.profileImage ? (
+             <img src={userDoc.profileImage} alt="Profile" className="w-24 h-24 rounded-2xl object-cover shadow-glow-eco" />
+          ) : (
+            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-eco-500 to-ocean-600 flex items-center justify-center text-4xl font-bold text-white shadow-glow-eco">
+              {userDoc?.name?.charAt(0)?.toUpperCase()}
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity gap-2">
+             <div onClick={(e) => { e.stopPropagation(); document.getElementById('profileUpload').click() }} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors">
+               <Edit className="w-5 h-5 text-white" />
+             </div>
+             {userDoc?.profileImage && (
+               <div 
+                 onClick={async (e) => {
+                   e.stopPropagation();
+                   const toastId = toast.loading('Removing profile picture...');
+                   try {
+                     const res = await usersAPI.updateProfile(userDoc.$id, { profileImage: '' });
+                     onEditClick(res.data.user);
+                     toast.success('Profile picture removed!', { id: toastId });
+                   } catch (err) {
+                     toast.error('Failed to remove', { id: toastId });
+                   }
+                 }} 
+                 className="p-2 bg-red-500/80 rounded-full hover:bg-red-500 transition-colors"
+               >
+                 <Trash2 className="w-5 h-5 text-white" />
+               </div>
+             )}
           </div>
           <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-lg">
             {lvl.emoji}
@@ -210,13 +256,13 @@ function ProfileHeader({ userDoc, onEditClick }) {
 
         {/* Info */}
         <div className="flex-1 text-center sm:text-left">
-          <h2 className="text-2xl font-display font-bold text-white flex items-center gap-2">
+          <h2 className="text-2xl font-display font-bold text-white flex items-center justify-center sm:justify-start gap-2">
             {userDoc?.name}
-            {userDoc?.isEmailVerified && <CheckCircle2 className="w-5 h-5 text-eco-400" />}
+            {userDoc?.isVerified && <CheckCircle2 className="w-5 h-5 text-eco-400" title="Verified User" />}
           </h2>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center justify-center sm:justify-start gap-2 mt-0.5">
             <p className="text-gray-400 text-sm">{userDoc?.email}</p>
-            {!userDoc?.isEmailVerified && (
+            {!userDoc?.isVerified && (
               <button onClick={() => window.openVerifyModal()} className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-md hover:bg-red-500/30 transition-colors">
                 Verify
               </button>
@@ -224,8 +270,8 @@ function ProfileHeader({ userDoc, onEditClick }) {
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-2 justify-center sm:justify-start">
             <span className="badge badge-eco">{lvl.name}</span>
-            {userDoc?.collegeId && (
-              <span className="badge badge-ocean">🏫 College Member</span>
+            {userDoc?.collegeId && userDoc?.collegeId !== 'none' && (
+              <span className="badge badge-ocean">🏫 {userDoc.collegeName || userDoc.collegeId}</span>
             )}
             <span className="badge bg-orange-500/20 text-orange-400 border border-orange-500/30">
               🔥 {userDoc?.streakCount || 0} day streak
@@ -249,7 +295,7 @@ function ProfileHeader({ userDoc, onEditClick }) {
         </div>
 
         <div className="flex gap-2">
-          <button onClick={onEditClick} className="btn-secondary px-3 py-2 text-sm flex items-center gap-1.5">
+          <button onClick={() => onEditClick(null)} className="btn-secondary px-3 py-2 text-sm flex items-center gap-1.5">
             <Edit className="w-4 h-4" /> Edit
           </button>
           <button className="btn-secondary px-3 py-2 text-sm flex items-center gap-1.5">
@@ -381,7 +427,10 @@ export default function Profile() {
         <p className="page-subtitle">Your eco journey at a glance</p>
       </div>
 
-      <ProfileHeader userDoc={profile} onEditClick={() => setShowEdit(true)} />
+      <ProfileHeader userDoc={profile} onEditClick={(updatedUser) => {
+        if(updatedUser && !updatedUser.nativeEvent) updateUserDoc(updatedUser)
+        else setShowEdit(true)
+      }} />
       <StatsGrid userDoc={profile} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -397,20 +446,21 @@ export default function Profile() {
             <p className="text-sm text-gray-400 mt-1">Your overall environmental impact rating</p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-display font-bold text-gradient-eco">{profile?.ecoScore || 72}</div>
-            <div className="text-xs text-gray-400">out of 100</div>
+            <div className="text-4xl font-display font-bold text-gradient-eco">{profile?.points || 0}</div>
+            <div className="text-xs text-gray-400">XP</div>
           </div>
         </div>
         <div className="mt-4 h-3 rounded-full bg-slate-700 overflow-hidden">
           <motion.div
             className="h-full rounded-full bg-gradient-to-r from-eco-500 to-green-400"
             initial={{ width: 0 }}
-            animate={{ width: `${profile?.ecoScore || 72}%` }}
+            animate={{ width: `${getLevelInfo(profile?.points || 0).progress}%` }}
             transition={{ duration: 1.5, ease: 'easeOut' }}
           />
         </div>
         <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>Beginner</span><span>Planet Hero</span>
+          <span>{getLevelInfo(profile?.points || 0).name}</span>
+          <span>{getLevelInfo(profile?.points || 0).next ? getLevelInfo(profile?.points || 0).next.name : 'Max Level'}</span>
         </div>
       </div>
 

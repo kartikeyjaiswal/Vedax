@@ -1,22 +1,26 @@
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { LayoutDashboard, ListTodo, Brain, Trophy, User, PenTool } from 'lucide-react'
+import { LayoutDashboard, ListTodo, Brain, Trophy, User, PenTool, FileText } from 'lucide-react'
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Home' },
   { to: '/tasks', icon: ListTodo, label: 'Tasks' },
   { to: '/assignments', icon: PenTool, label: 'Assign' },
   { to: '/quiz', icon: Brain, label: 'Quiz' },
+  { to: '/results', icon: FileText, label: 'Results' },
   { to: '/leaderboard', icon: Trophy, label: 'Ranks' },
   { to: '/profile', icon: User, label: 'Profile' },
 ]
 
+import { useAuthStore } from '../../store/authStore'
+
 export default function BottomNav() {
+  const { userDoc } = useAuthStore()
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
       <div className="mx-3 mb-3">
-        <div className="glass-card px-2 py-2 flex items-center justify-around">
-          {navItems.map(({ to, icon: Icon, label }) => (
+        <div className="glass-card px-2 py-2 flex items-center justify-around overflow-x-auto hide-scrollbar">
+          {navItems.filter(item => userDoc?.role === 'super_admin' ? false : true).map(({ to, icon: Icon, label }) => (
             <NavLink key={to} to={to}>
               {({ isActive }) => (
                 <div className={`nav-item ${isActive ? 'active' : ''}`}>

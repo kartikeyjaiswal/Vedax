@@ -21,13 +21,18 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Response interceptor - auto-clear stale session on 401
+// Response interceptor - auto-clear stale session on 401 and handle service suspension
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('eco_session')
       localStorage.removeItem('eco_account_id')
+    }
+    if (err.response?.status === 403 && err.response?.data?.code === 'SERVICE_SUSPENDED') {
+      window.dispatchEvent(new CustomEvent('service-suspended', { 
+        detail: { message: err.response.data.error } 
+      }))
     }
     return Promise.reject(err)
   }
@@ -53,6 +58,9 @@ export const usersAPI = {
   getProfile: (id) => api.get(`/api/users/${id}`),
   updateProfile: (id, data) => api.patch(`/api/users/${id}`, data),
   getStats: (id) => api.get(`/api/users/${id}/stats`),
+  block: (id, isBlocked) => api.patch(`/api/users/${id}/block`, { isBlocked }),
+  verify: (id, otp) => api.post(`/api/users/${id}/verify`, { otp }),
+  uploadProfile: (id, formData) => api.post(`/api/users/${id}/upload-profile`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
 
 // Tasks
@@ -88,6 +96,10 @@ export const collegesAPI = {
   getById: (id) => api.get(`/api/colleges/${id}`),
   getStats: (id) => api.get(`/api/colleges/${id}/stats`),
   getStudents: (id) => api.get(`/api/colleges/${id}/students`),
+  updateStatus: (id, status, suspensionReason) => api.patch(`/api/colleges/${id}/status`, { status, suspensionReason }),
+  updateSubscription: (id, data) => api.patch(`/api/colleges/${id}/subscription`, data),
+  edit: (id, data) => api.patch(`/api/colleges/${id}`, data),
+  delete: (id) => api.delete(`/api/colleges/${id}`),
 }
 
 // Quizzes
@@ -114,4 +126,18 @@ export const assignmentsAPI = {
   getMySubmissions: () => api.get('/api/assignments/my-submissions'),
   submit: (id, answers) => api.post(`/api/assignments/${id}/submit`, { answers }),
   evaluate: (id, subId, score) => api.post(`/api/assignments/${id}/evaluate/${subId}`, { score })
+}
+
+// Platform (Super Admin)
+export const platformAPI = {
+  getSettings: () => api.get('/api/platform/settings'),
+  updateSettings: (data) => api.patch('/api/platform/settings', data),
+  getLogs: () => api.get('/api/platform/logs')
+}
+
+// Tickets
+export const ticketsAPI = {
+  getAll: () => api.get('/api/tickets'),
+  create: (data) => api.post('/api/tickets', data),
+  update: (id, data) => api.patch(`/api/tickets/${id}`, data)
 }

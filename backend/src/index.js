@@ -22,6 +22,9 @@ import collegeRoutes from './routes/colleges.js'
 import quizRoutes from './routes/quiz.js'
 import aiRoutes from './routes/ai.js'
 import assignmentsRoutes from './routes/assignments.js'
+import platformRoutes from './routes/platform.js'
+import ticketsRoutes from './routes/tickets.js'
+import resultsRoutes from './routes/results.js'
 
 const app = express()
 
@@ -48,6 +51,9 @@ app.use('/api/colleges', collegeRoutes)
 app.use('/api/quizzes', quizRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/assignments', assignmentsRoutes)
+app.use('/api/platform', platformRoutes)
+app.use('/api/tickets', ticketsRoutes)
+app.use('/api/results', resultsRoutes)
 
 // Health check
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'Vedax Backend' }))

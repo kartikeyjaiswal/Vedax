@@ -15,16 +15,9 @@ export function formatNumber(n) {
 
 export function getLevelInfo(points) {
   const levels = [
-    { name: 'Seedling', min: 0, max: 200, color: '#86efac', emoji: '🌱' },
-    { name: 'Sapling', min: 200, max: 500, color: '#4ade80', emoji: '🌿' },
-    { name: 'Green Warrior', min: 500, max: 1000, color: '#22c55e', emoji: '🍃' },
-    { name: 'Eco Guardian', min: 1000, max: 2000, color: '#16a34a', emoji: '🌳' },
-    { name: 'Nature Champion', min: 2000, max: 4000, color: '#15803d', emoji: '🌲' },
-    { name: 'Planet Protector', min: 4000, max: 8000, color: '#166534', emoji: '🌍' },
-    { name: 'Eco Legend', min: 8000, max: 15000, color: '#3b82f6', emoji: '⚡' },
-    { name: 'Earth Master', min: 15000, max: 30000, color: '#8b5cf6', emoji: '🏆' },
-    { name: 'Climate Hero', min: 30000, max: 60000, color: '#f59e0b', emoji: '🦸' },
-    { name: 'Eco God', min: 60000, max: Infinity, color: '#ef4444', emoji: '🌟' },
+    { name: 'Beginner', min: 0, max: 500, color: '#86efac', emoji: '🌱' },
+    { name: 'Intermediate', min: 500, max: 2000, color: '#4ade80', emoji: '🌿' },
+    { name: 'Advanced', min: 2000, max: Infinity, color: '#22c55e', emoji: '🌟' },
   ]
   const level = levels.findIndex(l => points >= l.min && points < l.max)
   const current = levels[Math.max(0, level)]

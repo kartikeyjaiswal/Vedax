@@ -12,10 +12,24 @@ export default function ChatbotWidget() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
+  const [isChatbotEnabled, setIsChatbotEnabled] = useState(true)
+
+  useEffect(() => {
+    // Check if chatbot is globally enabled
+    import('../../services/api').then(({ platformAPI }) => {
+      platformAPI.getSettings().then(res => {
+        if (res.data?.settings) {
+          setIsChatbotEnabled(res.data.settings.isChatbotEnabled)
+        }
+      }).catch(() => {})
+    })
+  }, [])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  if (!isChatbotEnabled) return null
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return

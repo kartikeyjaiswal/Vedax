@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuthStore, useThemeStore } from './store/authStore'
@@ -16,6 +16,7 @@ import Quiz from './pages/Quiz'
 import QuizPlay from './pages/QuizPlay'
 import Leaderboard from './pages/Leaderboard'
 import Profile from './pages/Profile'
+import Results from './pages/Results'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
@@ -55,6 +56,63 @@ function PageLoader() {
   )
 }
 
+function ServiceSuspendedModal() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    const handleSuspended = (e) => {
+      setMessage(e.detail?.message || 'Services are currently suspended. Please contact the Super Admin to resolve the issue and resume access.')
+      setIsOpen(true)
+    }
+    window.addEventListener('service-suspended', handleSuspended)
+    return () => window.removeEventListener('service-suspended', handleSuspended)
+  }, [])
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-red-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center space-y-4">
+        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto text-red-500 text-3xl">
+          ⚠️
+        </div>
+        <h2 className="text-xl font-bold text-white">Service Suspended</h2>
+        <p className="text-gray-300 text-sm leading-relaxed">
+          {message}
+        </p>
+        <div className="bg-slate-800/50 rounded-xl p-4 text-left border border-slate-700/50">
+          <div className="text-xs text-gray-400 uppercase tracking-wider mb-2 font-semibold">Contact Details</div>
+          <div className="text-sm text-white flex items-center gap-2 mb-1">
+            <span>✉️</span> superadmin@ecogamify.com
+          </div>
+          <div className="text-sm text-white flex items-center gap-2">
+            <span>📞</span> 91+ 6392107120
+          </div>
+        </div>
+        <div className="pt-4 flex flex-col gap-2">
+          <button
+            onClick={() => window.location.href = 'mailto:superadmin@ecogamify.com'}
+            className="w-full py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Contact Super Admin
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem('eco_session')
+              localStorage.removeItem('eco_account_id')
+              window.location.href = '/login'
+            }}
+            className="w-full py-2.5 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const { initialize, isLoading } = useAuthStore()
   const { initTheme } = useThemeStore()
@@ -62,7 +120,7 @@ export default function App() {
   useEffect(() => {
     initTheme()
     initialize()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (isLoading) return <PageLoader />
@@ -90,6 +148,7 @@ export default function App() {
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/quiz/:id" element={<QuizPlay />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/results" element={<Results />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
 
@@ -126,6 +185,7 @@ export default function App() {
           },
         }}
       />
+      <ServiceSuspendedModal />
     </QueryClientProvider>
   )
 }

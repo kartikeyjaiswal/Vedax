@@ -183,7 +183,7 @@ async function createBucket() {
     await storage.createBucket(
       process.env.APPWRITE_STORAGE_BUCKET || 'submissions_bucket',
       'Submission Proofs',
-      [Permission.read(Role.users()), Permission.write(Role.users())],
+      [Permission.read(Role.any()), Permission.write(Role.users())],
       false, false, 10 * 1024 * 1024, // 10MB
       ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4']
     )

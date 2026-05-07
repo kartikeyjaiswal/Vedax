@@ -110,9 +110,9 @@ export default function Leaderboard() {
     ? (globalData?.data?.entries || [])
     : (collegeData?.data?.entries || [])
 
-  // Simulate user rank
-  const userRank = 12
-
+  // Dynamic user rank calculation
+  const userEntry = entries.find(e => e.userId === userDoc?.$id)
+  const userRank = userEntry ? userEntry.rank : '—'
   return (
     <div className="space-y-6 animate-slide-up">
       <div className="page-header">

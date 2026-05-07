@@ -1,5 +1,5 @@
 import { Client, Users } from 'node-appwrite'
-import { db, DB_ID, C } from '../services/appwrite.js'
+import { db, DB_ID, C, Query } from '../services/appwrite.js'
 
 export const verifySession = async (req, res, next) => {
   const sessionId = req.headers.authorization?.replace('Bearer ', '')
@@ -24,6 +24,42 @@ export const verifySession = async (req, res, next) => {
     // Hydrate the user doc to support RBAC
     try {
       req.userDoc = await db.getDocument(DB_ID, C.USERS, accountId)
+      
+      // Check service status
+      if (req.userDoc && !req.originalUrl.includes('/logout')) {
+        // Global Check
+        try {
+          const settings = await db.getDocument(DB_ID, C.PLATFORM_SETTINGS, 'global_settings')
+          if (settings && !settings.isGlobalServiceActive && req.userDoc.role !== 'super_admin') {
+            return res.status(403).json({ 
+              error: settings.globalSuspensionReason || 'Platform is under maintenance.', 
+              code: 'GLOBAL_SUSPENSION' 
+            })
+          }
+        } catch(e) {
+          // Ignore if document not created
+        }
+
+        // College Check
+        if (req.userDoc.collegeId && req.userDoc.role !== 'super_admin') {
+        try {
+          const collegesList = await db.listDocuments(DB_ID, C.COLLEGES, [
+            Query.equal('collegeUniqueId', req.userDoc.collegeId)
+          ])
+          if (collegesList.total > 0) {
+            const college = collegesList.documents[0]
+            if (college.status === 'paused') {
+              return res.status(403).json({ 
+                error: college.suspensionReason || 'Services are currently suspended. Please contact the Super Admin to resolve the issue and resume access.', 
+                code: 'SERVICE_SUSPENDED' 
+              })
+            }
+          }
+        } catch(e) {
+          console.error('Error checking college status:', e)
+        }
+        }
+      }
     } catch {
       req.userDoc = null
     }

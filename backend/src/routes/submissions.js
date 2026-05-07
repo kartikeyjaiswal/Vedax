@@ -2,7 +2,7 @@ import express from 'express'
 import multer from 'multer'
 import { db, storage, ID, Query, DB_ID, C, BUCKET_ID } from '../services/appwrite.js'
 import { verifyImage } from '../services/aiClient.js'
-import { verifySession } from '../middleware/auth.js'
+import { verifySession, checkRole } from '../middleware/auth.js'
 
 const router = express.Router()
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
@@ -42,7 +42,7 @@ async function awardPoints(userId, points) {
 }
 
 // POST /api/submissions
-router.post('/', verifySession, upload.single('proof'), async (req, res) => {
+router.post('/', verifySession, checkRole(['student', 'college_admin', 'common']), upload.single('proof'), async (req, res) => {
   try {
     const { taskId } = req.body
     const userId = req.account.$id
