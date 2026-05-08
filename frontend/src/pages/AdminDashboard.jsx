@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Users, ListTodo, CheckCircle, XCircle, Clock, Plus,
-  BarChart3, Building2, Trophy, ChevronRight, Loader2, MessageSquare
+  BarChart3, Building2, Trophy, ChevronRight, Loader2, MessageSquare, Eye
 } from 'lucide-react'
 import { tasksAPI, submissionsAPI, collegesAPI, ticketsAPI } from '../services/api'
 import { useAuthStore } from '../store/authStore'
@@ -26,15 +26,17 @@ function StatCard({ icon: Icon, label, value, color }) {
   )
 }
 
-export function SubmissionRow({ sub, onApprove, onReject }) {
+export function SubmissionRow({ sub, onApprove, onReject, onViewMedia }) {
   const [loading, setLoading] = useState(false)
   const handle = async (action) => {
     setLoading(true)
     try { await action() } finally { setLoading(false) }
   }
 
+  const mediaUrl = sub.imageProofId ? `${import.meta.env.VITE_APPWRITE_ENDPOINT}/storage/buckets/submissions_bucket/files/${sub.imageProofId}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}` : null;
+
   return (
-    <div className="flex items-center gap-4 p-4 glass-card">
+    <div className="flex items-center gap-4 p-4 glass-card relative z-10">
       <div className="flex-1 min-w-0">
         <div className="font-medium text-white text-sm">{sub.taskTitle || 'Eco Task'}</div>
         <div className="text-xs text-gray-400">{sub.userName} · {new Date(sub.$createdAt || Date.now()).toLocaleDateString()}</div>
@@ -42,10 +44,15 @@ export function SubmissionRow({ sub, onApprove, onReject }) {
       <div className={`badge badge-${sub.status}`}>{sub.status}</div>
       {sub.status === 'pending' && (
         <div className="flex gap-2">
-          <button onClick={() => handle(onApprove)} disabled={loading} className="w-8 h-8 rounded-lg bg-eco-500/20 text-eco-400 hover:bg-eco-500/30 flex items-center justify-center transition-colors">
+          {mediaUrl && (
+            <button onClick={() => onViewMedia(mediaUrl)} className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 flex items-center justify-center transition-colors" title="View Submission">
+              <Eye className="w-4 h-4" />
+            </button>
+          )}
+          <button onClick={() => handle(onApprove)} disabled={loading} className="w-8 h-8 rounded-lg bg-eco-500/20 text-eco-400 hover:bg-eco-500/30 flex items-center justify-center transition-colors" title="Approve">
             <CheckCircle className="w-4 h-4" />
           </button>
-          <button onClick={() => handle(onReject)} disabled={loading} className="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 flex items-center justify-center transition-colors">
+          <button onClick={() => handle(onReject)} disabled={loading} className="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 flex items-center justify-center transition-colors" title="Reject">
             <XCircle className="w-4 h-4" />
           </button>
         </div>
@@ -192,6 +199,7 @@ export default function AdminDashboard() {
   const qc = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+  const [viewMediaUrl, setViewMediaUrl] = useState(null)
 
   const { data: statsData } = useQuery({
     queryKey: ['college-stats', userDoc?.collegeId],
@@ -288,6 +296,7 @@ export default function AdminDashboard() {
               sub={sub}
               onApprove={() => approveMutation.mutateAsync(sub.$id)}
               onReject={() => rejectMutation.mutateAsync(sub.$id)}
+              onViewMedia={setViewMediaUrl}
             />
           ))}
         </div>
@@ -330,6 +339,23 @@ export default function AdminDashboard() {
           onClose={() => setShowCreate(false)}
           onCreated={() => qc.invalidateQueries(['tasks'])}
         />
+      )}
+
+      {viewMediaUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setViewMediaUrl(null)} />
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative glass-card w-full max-w-3xl p-6 space-y-4 max-h-[90vh] flex flex-col z-[101]">
+            <div className="flex justify-between items-center">
+              <h2 className="font-display font-bold text-white text-lg">Submission Media</h2>
+              <button onClick={() => setViewMediaUrl(null)} className="text-gray-400 hover:text-white">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto rounded-lg bg-black/50 flex items-center justify-center min-h-[300px]">
+              <iframe src={viewMediaUrl} className="w-full h-[60vh] rounded-lg border-0" title="Submission Proof" allowFullScreen />
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   )
