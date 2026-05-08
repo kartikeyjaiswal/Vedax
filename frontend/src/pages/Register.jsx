@@ -22,7 +22,7 @@ export default function Register() {
     setLoading(true)
     try {
       const user = await register(trimmedForm)
-      toast.success(`Welcome to EcoGamify, ${user.name}! 🎉`)
+      toast.success(`Welcome to EcoQuest, ${user.name}! 🎉`)
       navigate('/dashboard')
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Registration failed')
@@ -33,7 +33,7 @@ export default function Register() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 md:p-8">
-      <h2 className="text-xl font-display font-bold text-white mb-1">Join EcoGamify</h2>
+      <h2 className="text-xl font-display font-bold text-white mb-1">Join EcoQuest</h2>
       <p className="text-gray-400 text-sm mb-6">Start your eco-journey today 🌱</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">

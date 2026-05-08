@@ -56,7 +56,7 @@ const ecoFacts = [
   "💧 A 5-min shower saves 40 liters of water vs a bath",
   "♻️ Recycling one aluminum can saves 95% of energy",
   "🚲 Cycling 10km saves ~2.6kg of CO₂ emissions",
-  "🌍 1,000 actions by EcoGamify users saved 847kg CO₂",
+  "🌍 1,000 actions by EcoQuest users saved 847kg CO₂",
 ]
 
 export function XPProgressBar({ points }) {

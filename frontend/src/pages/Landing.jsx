@@ -16,7 +16,7 @@ export default function Landing() {
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-eco-500 to-ocean-600 flex items-center justify-center">
             <Leaf className="w-5 h-5 text-white" />
           </div>
-          <span className="font-display font-bold text-white text-xl">EcoGamify</span>
+          <span className="font-display font-bold text-white text-xl">EcoQuest</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
@@ -156,7 +156,7 @@ export default function Landing() {
               Driven by a mission to heal the planet.
             </h2>
             <p className="text-gray-400 text-lg leading-relaxed">
-              EcoGamify was built with a single goal: to make environmental action accessible, engaging, and rewarding. We believe that by gamifying sustainability, we can empower millions of individuals to take meaningful steps towards a greener future.
+              EcoQuest was built with a single goal: to make environmental action accessible, engaging, and rewarding. We believe that by gamifying sustainability, we can empower millions of individuals to take meaningful steps towards a greener future.
             </p>
             <p className="text-gray-400 text-lg leading-relaxed">
               Whether you're a student looking to make a difference or a community leader driving change, Vedax provides the tools, challenges, and AI-driven insights to help you maximize your real-world impact. Together, we can turn small eco-friendly habits into global change.
@@ -212,10 +212,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-eco-500">
             <Leaf className="w-5 h-5" />
-            <span className="font-display font-bold text-white">EcoGamify</span>
+            <span className="font-display font-bold text-white">EcoQuest</span>
           </div>
           <div className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} EcoGamify. All rights reserved.
+            © {new Date().getFullYear()} EcoQuest. All rights reserved.
           </div>
         </div>
       </footer>

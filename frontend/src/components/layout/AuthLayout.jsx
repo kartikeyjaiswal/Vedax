@@ -36,7 +36,7 @@ export default function AuthLayout() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-eco-500 to-ocean-600 mb-4 shadow-glow-eco">
               <span className="text-3xl">🌍</span>
             </div>
-            <h1 className="text-2xl font-display font-bold text-white">EcoGamify</h1>
+            <h1 className="text-2xl font-display font-bold text-white">EcoQuest</h1>
             <p className="text-gray-400 text-sm mt-1">Learn, Play, Change the World.</p>
           </div>
           <Outlet />

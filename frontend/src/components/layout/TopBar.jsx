@@ -122,7 +122,7 @@ export default function TopBar({ toggleSidebar, isSidebarOpen }) {
             <Leaf className="w-5 h-5 text-white" />
           </div>
           <div className="hidden sm:block">
-            <span className="font-display font-bold text-white text-lg">EcoGamify</span>
+            <span className="font-display font-bold text-white text-lg">EcoQuest</span>
           </div>
         </div>
       </div>

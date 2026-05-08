@@ -50,7 +50,7 @@ function PageLoader() {
         <div className="w-16 h-16 rounded-full bg-gradient-to-r from-eco-500 to-ocean-500 animate-pulse-slow flex items-center justify-center text-2xl">
           🌿
         </div>
-        <div className="text-gray-400 text-sm font-medium animate-pulse">Loading EcoGamify...</div>
+        <div className="text-gray-400 text-sm font-medium animate-pulse">Loading EcoQuest...</div>
       </div>
     </div>
   )
@@ -84,7 +84,7 @@ function ServiceSuspendedModal() {
         <div className="bg-slate-800/50 rounded-xl p-4 text-left border border-slate-700/50">
           <div className="text-xs text-gray-400 uppercase tracking-wider mb-2 font-semibold">Contact Details</div>
           <div className="text-sm text-white flex items-center gap-2 mb-1">
-            <span>✉️</span> superadmin@ecogamify.com
+            <span>✉️</span> superadmin@ecoquest.com
           </div>
           <div className="text-sm text-white flex items-center gap-2">
             <span>📞</span> 91+ 6392107120
@@ -92,7 +92,7 @@ function ServiceSuspendedModal() {
         </div>
         <div className="pt-4 flex flex-col gap-2">
           <button
-            onClick={() => window.location.href = 'mailto:superadmin@ecogamify.com'}
+            onClick={() => window.location.href = 'mailto:superadmin@ecoquest.com'}
             className="w-full py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors"
           >
             Contact Super Admin
