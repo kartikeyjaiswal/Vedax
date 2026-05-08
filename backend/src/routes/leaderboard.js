@@ -5,7 +5,7 @@ import { verifySession, checkRole } from '../middleware/auth.js'
 const router = express.Router()
 
 // GET /api/leaderboard/global
-router.get('/global', verifySession, checkRole(['student', 'college_admin']), async (req, res) => {
+router.get('/global', async (req, res) => {
   try {
     const { limit = 50 } = req.query
     const queries = [Query.orderDesc('points'), Query.limit(parseInt(limit))]

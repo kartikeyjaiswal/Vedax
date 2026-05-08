@@ -1,16 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { FileText, CheckCircle, Clock, AlertCircle } from 'lucide-react'
-import { platformAPI } from '../services/api' // Needs to be added to api.js
+import { resultsAPI } from '../services/api'
 
 export default function Results() {
   const { data, isLoading } = useQuery({
     queryKey: ['my-results'],
-    queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/api/results`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('eco_session')}` }
-    }).then(res => res.json())
+    queryFn: () => resultsAPI.getAll(),
   })
 
-  const results = data?.results || []
+  const results = data?.data?.results || []
 
   return (
     <div className="space-y-6 animate-slide-up">

@@ -141,3 +141,8 @@ export const ticketsAPI = {
   create: (data) => api.post('/api/tickets', data),
   update: (id, data) => api.patch(`/api/tickets/${id}`, data)
 }
+
+// Results
+export const resultsAPI = {
+  getAll: () => api.get('/api/results')
+}
