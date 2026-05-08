@@ -18,7 +18,7 @@ export default function Login() {
     if (!email || !password) return toast.error('Please fill all fields')
     setLoading(true)
     try {
-      const user = await login(email, password)
+      const user = await login(email.trim(), password.trim())
       toast.success(`Welcome back, ${user.name}! 🌿`)
       navigate('/dashboard')
     } catch (err) {

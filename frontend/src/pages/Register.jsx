@@ -23,10 +23,11 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name || !form.email || !form.password) return toast.error('Please fill required fields')
-    if (form.password.length < 8) return toast.error('Password must be at least 8 characters')
+    const trimmedForm = { ...form, email: form.email.trim(), password: form.password.trim() }
+    if (trimmedForm.password.length < 8) return toast.error('Password must be at least 8 characters')
     setLoading(true)
     try {
-      const user = await register(form)
+      const user = await register(trimmedForm)
       toast.success(`Welcome to EcoGamify, ${user.name}! 🎉`)
       navigate('/dashboard')
     } catch (err) {

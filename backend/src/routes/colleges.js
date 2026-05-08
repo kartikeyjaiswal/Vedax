@@ -18,17 +18,18 @@ router.post('/', verifySession, checkRole(['super_admin']), async (req, res) => 
     const { collegeName, adminEmail } = req.body
     if (!collegeName || !adminEmail) return res.status(400).json({ error: 'collegeName and adminEmail required' })
 
+    const email = adminEmail.trim().toLowerCase()
     const collegeUniqueId = generateCollegeId(collegeName)
     const adminPassword = 'V' + Math.random().toString(36).slice(-8) + '!x'
 
     // 1. Create Appwrite Account for Admin
     const accountId = ID.unique()
-    await users.create(accountId, adminEmail, undefined, adminPassword, `${collegeName} Admin`)
+    await users.create(accountId, email, undefined, adminPassword, `${collegeName} Admin`)
 
     // 2. Create User doc
     const userDocData = {
       name: `${collegeName} Admin`,
-      email: adminEmail,
+      email,
       role: 'college_admin',
       collegeId: collegeUniqueId,
       points: 0, level: 1, badges: [],
@@ -47,7 +48,7 @@ router.post('/', verifySession, checkRole(['super_admin']), async (req, res) => 
     const college = await db.createDocument(DB_ID, C.COLLEGES, ID.unique(), {
       collegeName,
       collegeUniqueId,
-      adminEmail,
+      adminEmail: email,
       adminPassword,
       createdBy: req.userDoc.$id,
       teamId,
@@ -55,7 +56,7 @@ router.post('/', verifySession, checkRole(['super_admin']), async (req, res) => 
       status: 'active'
     })
 
-    res.status(201).json({ college, adminEmail, adminPassword })
+    res.status(201).json({ college, adminEmail: email, adminPassword })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
