@@ -121,7 +121,10 @@ export default function Quiz() {
     onSuccess: (res) => {
       navigate(`/quiz/${res.data.quiz.$id || 'ai-generated'}`, { state: { quiz: res.data.quiz } })
     },
-    onError: () => toast.error('Failed to generate quiz. Check AI service.'),
+    onError: (err) => {
+      const errorMsg = err.response?.data?.error || err.response?.data?.details || 'Failed to generate quiz. Check AI service.';
+      toast.error(errorMsg);
+    },
   })
 
   const staticQuizzes = [

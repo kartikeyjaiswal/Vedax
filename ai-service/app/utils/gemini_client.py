@@ -10,7 +10,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-async def generate_text(prompt: str, model_name: str = "gemini-flash-latest", response_mime_type: str = "text/plain") -> str:
+async def generate_text(prompt: str, model_name: str = "gemini-2.5-flash", response_mime_type: str = "text/plain") -> str:
     try:
         model = genai.GenerativeModel(model_name)
         
@@ -36,6 +36,8 @@ async def generate_text(prompt: str, model_name: str = "gemini-flash-latest", re
         raise HTTPException(status_code=502, detail="Error communicating with AI service provider.")
     except Exception as e:
         print(f"Gemini API Error: {str(e)}")
+        if "429" in str(e) or "ResourceExhausted" in str(type(e)):
+            raise HTTPException(status_code=429, detail="AI Quota Exceeded. Please check your Gemini API key and billing details.")
         if isinstance(e, HTTPException):
             raise e
-        raise HTTPException(status_code=500, detail="Failed to retrieve valid response from AI service.")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve valid response from AI service: {str(e)}")

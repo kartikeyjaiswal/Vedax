@@ -75,7 +75,9 @@ router.post('/generate', verifySession, checkRole(['college_admin', 'student']),
       }
     })
   } catch (err) {
-    res.status(500).json({ error: `AI service error: ${err.message}` })
+    const status = err.response?.status || 500;
+    const errorDetail = err.response?.data?.detail || err.message;
+    res.status(status).json({ error: `AI service error: ${errorDetail}` })
   }
 })
 

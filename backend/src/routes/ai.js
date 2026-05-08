@@ -10,7 +10,9 @@ router.post('/chatbot', async (req, res) => {
     const result = await chatbot(message, history || [])
     res.json({ response: result.data.response })
   } catch (err) {
-    res.status(500).json({ error: 'AI service unavailable', details: err.message })
+    const status = err.response?.status || 500;
+    const errorDetail = err.response?.data?.detail || err.message;
+    res.status(status).json({ error: 'AI service error', details: errorDetail });
   }
 })
 
@@ -22,7 +24,9 @@ router.post('/verify-image', async (req, res) => {
     const result = await verifyImage(imageUrl, taskType)
     res.json(result.data)
   } catch (err) {
-    res.status(500).json({ verified: false, error: err.message })
+    const status = err.response?.status || 500;
+    const errorDetail = err.response?.data?.detail || err.message;
+    res.status(status).json({ verified: false, error: errorDetail })
   }
 })
 
@@ -33,7 +37,9 @@ router.get('/recommendations', async (req, res) => {
     const result = await recommendTasks(userId, [], parseInt(points))
     res.json(result.data)
   } catch (err) {
-    res.status(500).json({ recommendations: [], error: err.message })
+    const status = err.response?.status || 500;
+    const errorDetail = err.response?.data?.detail || err.message;
+    res.status(status).json({ recommendations: [], error: errorDetail })
   }
 })
 

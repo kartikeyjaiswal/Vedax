@@ -41,9 +41,10 @@ export default function ChatbotWidget() {
       const history = messages.slice(-8)
       const res = await aiRouteAPI.chat(userMsg.content, history)
       setMessages(prev => [...prev, { role: 'assistant', content: res.data.response }])
-    } catch {
-      toast.error('EcoBot is unavailable right now')
-      setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I'm having trouble connecting right now. Please try again later! 🌱" }])
+    } catch (err) {
+      const errorMsg = err.response?.data?.details || err.response?.data?.error || "Sorry, I'm having trouble connecting right now. Please try again later! 🌱";
+      toast.error(err.response?.data?.details ? 'AI Quota Exceeded' : 'EcoBot is unavailable right now')
+      setMessages(prev => [...prev, { role: 'assistant', content: errorMsg }])
     } finally {
       setIsLoading(false)
     }
